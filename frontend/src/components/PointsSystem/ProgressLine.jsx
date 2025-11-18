@@ -1,20 +1,3 @@
-// import React from "react";
-
-// export default function ProgressLine({ points, level, progress }) {
-//   return (
-//     <div className="w-full mt-4 bg-gray-200 rounded-full h-3">
-//       <div
-//         className="bg-blue-500 h-3 rounded-full transition-all"
-//         style={{ width: `${progress}%` }}
-//       ></div>
-//       <div className="flex justify-between mt-2 text-sm text-gray-700">
-//         <span>Level {level}</span>
-//         <span>{points} pts</span>
-//       </div>
-//     </div>
-//   );
-// }
-
 
 import React from "react";
 

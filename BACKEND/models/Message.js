@@ -8,19 +8,18 @@ const messageSchema = new mongoose.Schema({
     },
     sender_id: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
         required: true
-    },
-    sender_email: {
-        type: String
     },
     sender_role: {
         type: String,
-        enum: ['student', 'alumni', 'admin']
+        enum: ['student', 'alumni', 'admin'],
+        required: true
     },
     sender_name: {
         type: String,
-        default: ''
+    },
+    sender_email: {
+        type: String
     },
     message_text: {
         type: String,
@@ -49,7 +48,6 @@ const messageSchema = new mongoose.Schema({
     },
     deleted_by_users: [{
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'User'
     }]
 }, {
     timestamps: true

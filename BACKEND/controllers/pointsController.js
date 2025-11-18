@@ -1,155 +1,124 @@
-// // Example data fallback (used if DB data not found)
-// const fakeBadges = [
-//   { id: 1, name: "Beginner Explorer", description: "Earned 100 points for consistent participation" },
-//   { id: 2, name: "Active Contributor", description: "Earned 500 points for sharing valuable insights" },
-//   { id: 3, name: "Community Star", description: "Top 5 in leaderboard for 2 consecutive weeks" },
-// ];
-
-// const fakeLeaderboard = [
-//   { id: "1", name: "Aarav Mehta", points: 950 },
-//   { id: "2", name: "Baljeet Patel", points: 720 },
-//   { id: "3", name: "Diya Sharma", points: 610 },
-//   { id: "4", name: "Rahul Verma", points: 540 },
-//   { id: "5", name: "Isha Kapoor", points: 480 },
-// ];
-
-// // ✅ Controller: Get user points
-// exports.getUserPoints = async (req, res) => {
-//   try {
-//     const { userId } = req.params;
-
-//     // 🧩 Later, fetch from DB using userId
-//     // Example: const userPoints = await Points.findOne({ userId });
-
-//     const userPoints = { totalPoints: 720, badges: fakeBadges }; // Fake fallback
-
-//     res.status(200).json(userPoints);
-//   } catch (error) {
-//     console.error("Error fetching user points:", error);
-//     res.status(500).json({ message: "Failed to fetch user points" });
-//   }
-// };
-
-// // ✅ Controller: Get leaderboard
-// exports.getLeaderboard = async (req, res) => {
-//   try {
-//     // 🧩 Later: Replace with DB logic like: const leaderboard = await Points.find().sort({ points: -1 });
-//     res.status(200).json(fakeLeaderboard);
-//   } catch (error) {
-//     console.error("Error fetching leaderboard:", error);
-//     res.status(500).json({ message: "Failed to fetch leaderboard" });
-//   }
-// };
-
-
+// controllers/pointsController.js
 const Points = require("../models/Points");
+const Event = require("../models/Event");
+const { awardUniquePoints } = require("../utils/pointsHelper");
 
-// --- Fallback demo data (only used if DB empty) ---
-const fakeBadges = [
-  {
-    name: "Beginner Explorer",
-    description: "Earned 100 points for consistent participation",
-    icon: "https://cdn-icons-png.flaticon.com/512/616/616408.png",
-  },
-  {
-    name: "Active Contributor",
-    description: "Earned 500 points for sharing valuable insights",
-    icon: "https://cdn-icons-png.flaticon.com/512/2583/2583345.png",
-  },
-  {
-    name: "Community Star",
-    description: "Top 5 in leaderboard for 2 consecutive weeks",
-    icon: "https://cdn-icons-png.flaticon.com/512/3135/3135715.png",
-  },
-];
+// small helper mapping
+const mapRoleToType = (role) => {
+  if (!role) return "StudentProfile";
+  const r = String(role).toLowerCase();
+  if (r === "student") return "StudentProfile";
+  if (r === "alumni") return "AlumniProfile";
+  return "StudentProfile";
+};
 
-const fakeLeaderboard = [
-  { id: "1", name: "Aarav Mehta", points: 950 },
-  { id: "2", name: "Baljeet Patel", points: 720 },
-  { id: "3", name: "Diya Sharma", points: 610 },
-  { id: "4", name: "Rahul Verma", points: 540 },
-  { id: "5", name: "Isha Kapoor", points: 480 },
-];
-
-// ✅ Controller: Fetch user's points + badges
+// ----------------------------
+// GET USER POINTS
+// ----------------------------
 exports.getUserPoints = async (req, res) => {
   try {
     const { userId } = req.params;
+    if (!userId) return res.status(400).json({ message: "Missing userId param." });
 
-    // Try to get real data from MongoDB
-    let userPoints = await Points.findOne({ userId });
-
-    if (!userPoints) {
-      // Create fake record for now
-      userPoints = new Points({
+    // return Points doc (create if missing)
+    let record = await Points.findOne({ userId });
+    if (!record) {
+      record = new Points({
         userId,
-        userType: "Student",
-        totalPoints: 720,
-        badges: fakeBadges,
+        userType: "StudentProfile",
+        totalPoints: 0,
+        badges: [],
       });
-      await userPoints.save();
+      await record.save();
     }
 
-    res.status(200).json({
-      totalPoints: userPoints.totalPoints,
-      badges: userPoints.badges.length ? userPoints.badges : fakeBadges,
+    // Return totals & badges (no recalculation here — since we award in event flows)
+    return res.status(200).json({
+      totalPoints: record.totalPoints || 0,
+      badges: record.badges || [],
     });
   } catch (error) {
-    console.error("❌ Error fetching user points:", error);
+    console.error(" Error fetching user points:", error);
     res.status(500).json({ message: "Failed to fetch user points" });
   }
 };
 
-// ✅ Controller: Fetch leaderboard
+// ----------------------------
+// LEADERBOARD (filtered by userType)
+// ----------------------------
 exports.getLeaderboard = async (req, res) => {
   try {
-    const topUsers = await Points.find()
-      .populate("userId", "name email") // optional
+    const { userType } = req.query; // Student | Alumni
+
+    // Map frontend → backend model names
+    const mapping = {
+      Student: "StudentProfile",
+      Alumni: "AlumniProfile",
+    };
+
+    const mapped = mapping[userType];
+    if (!mapped) return res.json([]);
+
+    const topUsers = await Points.find({ userType: mapped })
+      .populate("userId", "full_name email")
       .sort({ totalPoints: -1 })
-      .limit(5);
+      .limit(10);
 
-    if (topUsers.length === 0) {
-      return res.status(200).json(fakeLeaderboard);
-    }
+    // const leaderboard = topUsers.map((entry) => ({
+    //   id: entry.userId?._id || entry._id,
+    //   full_name: entry.userId?.full_name || "Unknown",
+    //   points: entry.totalPoints || 0,
+    // }));
 
-    const leaderboard = topUsers.map((entry, index) => ({
-      id: entry.userId?._id || index,
-      name: entry.userId?.name || "Anonymous",
-      points: entry.totalPoints,
+    const leaderboard = topUsers.map((entry) => ({
+      id: entry.userId?._id || entry._id,
+      full_name: entry.userId?.full_name || null,
+      name: entry.userId?.name || null,
+      email: entry.userId?.email || null,   // ← ADD THIS LINE
+      points: entry.totalPoints || 0,
+      userType: entry.userType || null
     }));
 
-    res.status(200).json(leaderboard);
+
+
+    return res.status(200).json(leaderboard);
+
   } catch (error) {
-    console.error("❌ Error fetching leaderboard:", error);
-    res.status(500).json({ message: "Failed to fetch leaderboard" });
+    console.error(" Error fetching leaderboard:", error);
+    return res.status(500).json({ message: "Failed to fetch leaderboard" });
   }
 };
 
 
-// ✅ New: Award points or badges to user
+
+
+// ----------------------------
+// AWARD POINTS / BADGES (manual endpoint if needed)
+// ----------------------------
 exports.awardPoints = async (req, res) => {
   try {
-    const { userId, userType, pointsToAdd, badge } = req.body;
+    let { userId, userType, pointsToAdd, badge, actionKey } = req.body;
 
-    if (!userId || !userType) {
-      return res.status(400).json({ message: "User ID and type are required" });
+    if (!userId || !userType || !pointsToAdd) {
+      return res.status(400).json({ message: "userId, userType and pointsToAdd are required." });
     }
 
+    const mappedType = mapRoleToType(userType);
+
+    // If actionKey provided, use awardUniquePoints to prevent duplicates
+    if (actionKey) {
+      await awardUniquePoints(userId, mappedType, Number(pointsToAdd), actionKey);
+      const updated = await Points.findOne({ userId });
+      return res.status(200).json({ message: "Awarded (unique) points", data: updated });
+    }
+
+    // Otherwise simple add (non-idempotent)
     let record = await Points.findOne({ userId });
-
     if (!record) {
-      record = new Points({
-        userId,
-        userType,
-        totalPoints: 0,
-        badges: [],
-      });
+      record = new Points({ userId, userType: mappedType, totalPoints: 0, badges: [] });
     }
-
-    // Update points
     record.totalPoints += Number(pointsToAdd) || 0;
 
-    // Optionally add badge
     if (badge) {
       record.badges.push({
         name: badge.name,
@@ -159,13 +128,62 @@ exports.awardPoints = async (req, res) => {
     }
 
     await record.save();
-
-    res.status(200).json({
-      message: "Points or badge awarded successfully",
-      data: record,
-    });
+    res.status(200).json({ message: "Points or badge awarded successfully", data: record });
   } catch (error) {
-    console.error("❌ Error awarding points:", error);
+    console.error(" Error awarding points:", error);
     res.status(500).json({ message: "Failed to award points" });
   }
 };
+
+
+// -----------------------------------------------------
+// ⭐ ADMIN: GET USER INFO FOR LEADERBOARD CLICK
+// -----------------------------------------------------
+exports.getUserInfo = async (req, res) => {
+  try {
+    const { id } = req.params;
+    let { type } = req.query;
+
+    if (!id || !type) {
+      return res.status(400).json({ message: "Missing id or type." });
+    }
+
+    // Normalize type (Student → StudentProfile)
+    const typeMap = {
+      Student: "StudentProfile",
+      Alumni: "AlumniProfile",
+      StudentProfile: "StudentProfile",
+      AlumniProfile: "AlumniProfile",
+    };
+
+    type = typeMap[type];
+
+    if (!type) {
+      return res.status(400).json({ message: "Invalid type provided." });
+    }
+
+    // Dynamically pick model
+    const Model =
+      type === "StudentProfile"
+        ? require("../models/StudentProfile")
+        : require("../models/AlumniProfile");
+
+    const user = await Model.findById(id)
+      .select("full_name email contact_number");
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.json({
+      full_name: user.full_name || "Unknown",
+      email: user.email || "No email",
+      phone: user.contact_number || "No phone",
+    });
+
+  } catch (err) {
+    console.error(" getUserInfo error:", err.message);
+    res.status(500).json({ message: "Server Error" });
+  }
+};
+

@@ -5,18 +5,32 @@ import mentorshipService from '../services/mentorshipService';
 import withSidebarToggle from '../hocs/withSidebarToggle';
 import Navbar from '../components/Navbar';
 import MentorshipResourcesSection from '../components/MentorshipResourcesSection';
+import { getCurrentUserRole, getCurrentUserIdFromToken } from '../utils/authUtils';
 
-// Mock auth utility - replace with your actual auth context
+// Unified auth helper: prefer explicit `userRole` key, fall back to token payload
 const getCurrentUser = () => {
-    const token = localStorage.getItem('token');
-    if (!token) return null;
-    // Decode token to get user info - replace with your actual token decoding
-    try {
-        const payload = JSON.parse(atob(token.split('.')[1]));
-        return payload;
-    } catch (e) {
-        return null;
+    const storedRole = localStorage.getItem('userRole') || null;
+    const roleFromToken = getCurrentUserRole();
+    const rawRole = storedRole || roleFromToken || null;
+    const role = rawRole ? String(rawRole).toLowerCase() : null;
+
+    const id = getCurrentUserIdFromToken();
+
+    const token = localStorage.getItem('userToken') || localStorage.getItem('token') || null;
+    let payload = {};
+    if (token) {
+        try {
+            payload = JSON.parse(atob(token.split('.')[1]));
+        } catch (e) {
+            payload = {};
+        }
     }
+
+    return {
+        ...payload,
+        role,
+        id
+    };
 };
 
 const API_BASE_URL = (typeof process !== 'undefined' && process.env.REACT_APP_API_BASE_URL) || 'http://localhost:5000';

@@ -1,6 +1,7 @@
 // BACKEND/middleware/auth.js
 const jwt = require('jsonwebtoken');
 
+
 // CRITICAL FIX: Ensure the fallback key is ONLY used if process.env.JWT_SECRET is truly undefined,
 // but for production, this fallback should be removed.
 const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret_key';

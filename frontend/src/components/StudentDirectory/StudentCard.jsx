@@ -58,7 +58,7 @@ const StudentCard = ({ student }) => {
             });
 
             // Navigate to the messages page with the conversation
-            navigate(`/messages/${response.data.conversation._id}`);
+            navigate(`/messages/${response.data.conversation_id}`);
         } catch (error) {
             console.error('Error creating conversation:', error);
             // Check for 401/403 and provide better feedback

@@ -19,7 +19,7 @@ router.get('/posts/:postId/comments', auth, forumController.getPostComments);
 
 // --- 2. User Interaction (Student/Alumni) ---
 // Post creation requires Student or Alumni role
-router.post('/posts', auth, checkRole(ALL_USERS), forumController.createPost);
+router.post('/posts', auth, checkRole(['admin','alumni']), forumController.createPost);
 router.post('/comments', auth, checkRole(ALL_USERS), forumController.createComment);
 
 // FIX: ADDED MISSING ROUTE FOR COMMENT DELETION

@@ -37,9 +37,8 @@ const verifyCommentOwnership = async (commentId, userId, res) => {
     return comment;
 };
 
-// ===================================================
 // 1. CONTENT RETRIEVAL (GET) HANDLERS
-// ===================================================
+
 
 // GET /api/forums/categories
 exports.getCategories = async (req, res) => {
@@ -142,9 +141,8 @@ exports.getPostComments = async (req, res) => {
 };
 
 
-// ===================================================
+
 // 2. USER INTERACTION (POST/PUT/DELETE) HANDLERS
-// ===================================================
 
 // POST /api/forums/posts
 exports.createPost = async (req, res) => {

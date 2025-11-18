@@ -15,5 +15,5 @@ export async function updateMissingAlumniEmbeddings() {
     alum.embedding = await createEmbedding(text);
     await alum.save();
   }
-  console.log("✅ Alumni embeddings updated.");
+  console.log(" Alumni embeddings updated.");
 }

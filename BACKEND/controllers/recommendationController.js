@@ -11,7 +11,7 @@ exports.generateRecommendations = async (req, res) => {
   try {
     const { studentId, manualData } = req.body;
 
-    // ✅ 1️⃣ Fetch student data
+    //  Fetch student data
     const student = studentId
       ? await StudentProfile.findById(studentId)
       : manualData;
@@ -20,14 +20,14 @@ exports.generateRecommendations = async (req, res) => {
       return res.status(404).json({ message: "Student not found" });
     }
 
-    // ✅ 2️⃣ Normalize for case-insensitive processing
+    // Normalize for case-insensitive processing
     student.branch = student.branch?.trim().toLowerCase() || "";
     student.skills = (student.skills || []).map((s) => s.toLowerCase().trim());
     student.career_goals = student.career_goals?.trim().toLowerCase() || "";
     student.mentorship_area =
       student.mentorship_area?.trim().toLowerCase() || "";
 
-    // ✅ 3️⃣ Create student embedding
+    // Create student embedding
     const studentText = `
       Branch: ${student.branch}
       Skills: ${student.skills.join(", ")}
@@ -35,7 +35,7 @@ exports.generateRecommendations = async (req, res) => {
       Mentorship Area: ${student.mentorship_area}
     `;
 
-    console.log("🧠 Generating student embedding...");
+    console.log(" Generating student embedding...");
     const studentEmbedding = await createEmbedding(studentText);
 
     if (!studentEmbedding?.length) {
@@ -44,8 +44,8 @@ exports.generateRecommendations = async (req, res) => {
         .json({ message: "Failed to create embedding for student." });
     }
 
-    // ✅ 4️⃣ Perform vector search on alumni embeddings
-    console.log("🔍 Running vector search on alumni profiles...");
+    //  Perform vector search on alumni embeddings
+    console.log(" Running vector search on alumni profiles...");
     const candidates = await AlumniProfile.aggregate([
       {
         $vectorSearch: {
@@ -70,11 +70,11 @@ exports.generateRecommendations = async (req, res) => {
     ]);
 
     if (!candidates.length) {
-      console.warn("⚠️ No alumni found in vector search.");
+      console.warn("No alumni found in vector search.");
       return res.json({ recommendations: [] });
     }
 
-    // ✅ 5️⃣ Normalize alumni before hybrid scoring
+    // Normalize alumni before hybrid scoring
     const hybridResults = candidates
       .map((alum) => {
         const exp = Math.min(alum.years_of_experience / 15 || 0, 1);
@@ -93,9 +93,9 @@ exports.generateRecommendations = async (req, res) => {
       .sort((a, b) => b.finalScore - a.finalScore)
       .slice(0, 5);
 
-    console.log(`✅ Top ${hybridResults.length} alumni selected.`);
+    console.log(` Top ${hybridResults.length} alumni selected.`);
 
-    // ✅ 6️⃣ Generate reasoning with Gemini
+    // Generate reasoning with Gemini
     const prompt = hybridResults
       .map(
         (r, i) =>
@@ -107,14 +107,14 @@ exports.generateRecommendations = async (req, res) => {
       )
       .join("\n\n");
 
-    console.log("🧩 Generating reasoning...");
+    console.log(" Generating reasoning...");
     let reasoningText = "";
     try {
       reasoningText = await generateReasoning(
         `Explain briefly why each alumni could be a good mentor for the student.\n\n${prompt}`
       );
     } catch (e) {
-      console.warn("⚠️ Reasoning generation failed:", e.message);
+      console.warn(" Reasoning generation failed:", e.message);
     }
 
     const reasonList =
@@ -123,7 +123,7 @@ exports.generateRecommendations = async (req, res) => {
         ?.map((r) => r.trim())
         ?.filter((r) => r.length > 10) || [];
 
-    // ✅ 7️⃣ Format final response
+    // Format final response
     const response = hybridResults.map((a, i) => ({
       name: a.full_name,
       company: a.company || "N/A",
@@ -137,7 +137,7 @@ exports.generateRecommendations = async (req, res) => {
 
     res.status(200).json({ recommendations: response });
   } catch (err) {
-    console.error("❌ Error generating recommendations:", err);
+    console.error(" Error generating recommendations:", err);
     res.status(500).json({
       error:
         err.message ||

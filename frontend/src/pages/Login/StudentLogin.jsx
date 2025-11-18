@@ -99,9 +99,13 @@ const StudentLogin = () => {
     setError("");
 
     try {
-      const res = await axios.post("http://localhost:5000/api/student/login", formData);
+  const res = await axios.post("http://localhost:5000/api/student/login", formData);
+  // Store token under both keys for compatibility with different modules
       localStorage.setItem("userToken", res.data.token);
+      localStorage.setItem("token", res.data.token);
       localStorage.setItem("userRole", "student");
+
+
 
       alert("✅ Logged in successfully!");
       navigate("/");

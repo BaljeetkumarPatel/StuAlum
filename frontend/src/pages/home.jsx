@@ -1,6 +1,6 @@
 // frontend/src/pages/Home.jsx
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import withSidebarToggle from '../hocs/withSidebarToggle'; 
 import Navbar from '../components/Navbar'; 
 import HeroSection from '../components/homepage/HeroSection';
@@ -13,8 +13,18 @@ import DiscoverFeatures from '../components/homepage/Features';
 import AIPowersJourney from '../components/homepage/AIPowers';
 import CommunitySays from '../components/homepage/CommunitySays';
 import Footer from '../components/Footer';
+import SimpleChatbot from '../components/chatbot/SimpleChatbot'
+import { getCurrentUserIdFromToken } from "../utils/authUtils";
 
 const Home = ({ onSidebarToggle }) => { 
+
+    const [userId, setUserId] = useState(null);
+    useEffect(() => {
+    const id = getCurrentUserIdFromToken();
+    setUserId(id);
+}, []);
+
+
     return (
         // Renders content and navbar as siblings inside the HOC's wrapper
         <>
@@ -38,6 +48,15 @@ const Home = ({ onSidebarToggle }) => {
                 
                 <Footer />
             </main>
+           {userId &&
+                userId !== "null" &&
+                userId !== "undefined" &&
+                userId !== "" &&
+                userId !== " " &&
+                typeof userId === "string" &&
+                userId.length > 5 ? (
+                <SimpleChatbot />
+                ) : null}
         </>
     );
 };

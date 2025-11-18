@@ -192,7 +192,7 @@ const menuItems = [
     },
     {
         label: 'Analytics',
-        route: '/analytics',
+        route: '/placement-dashboard',
         icon: (
             <svg
                 className="w-6 h-6 mr-4"
@@ -253,6 +253,13 @@ const Sidebar = ({ onLogoClick, isOpen, onClose }) => {
     const userRole = getCurrentUserRole();
     const isAdmin = userRole === 'admin';
 
+    // Remove Mentorship for Admins
+    const filteredMenuItems = isAdmin
+        ? menuItems.filter((item) => item.label !== "Mentorship")
+        : menuItems;
+
+    
+
     const sidebarClasses = `
         fixed top-0 z-50 h-screen w-60 bg-[#1A1D26] text-white flex flex-col shadow-lg
         transition-transform duration-300 ease-in-out
@@ -307,13 +314,14 @@ const Sidebar = ({ onLogoClick, isOpen, onClose }) => {
                     onClick={() => { onLogoClick(); onClose(); }}
                 >
                     <img src="/logo.png" alt="Logo" className="h-10 w-auto mr-3" />
-                    <span className="text-xl font-bold tracking-wide text-purple-400">RECONNECT</span>
+                    <span className="text-xl font-bold tracking-wide text-purple-400">StuAlum</span>
                 </div>
 
                 <nav className="flex-1 overflow-y-auto">
                     <ul className="list-none p-0 m-0">
                         {/* 1. STANDARD USER LINKS */}
-                        {menuItems.map((item) => (
+                        {/* {menuItems.map((item) => ( */}
+                        {filteredMenuItems.map((item) => (
                             <li
                                 key={item.label}
                                 onClick={() => handleNavigation(item.route)}

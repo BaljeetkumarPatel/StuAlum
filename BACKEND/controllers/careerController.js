@@ -19,7 +19,7 @@ const getProfileType = (role) => {
 // Fetches both Prep Resources and Articles/Videos in a single API call
 exports.getCareerResources = async (req, res) => {
   try {
-    // 🚨 CHECK 1: Does the request reach here?
+    //  CHECK 1: Does the request reach here?
     console.log('C-LOG: 1. Request reached getCareerResources.');
 
     // Fetch Prep Resources
@@ -98,8 +98,6 @@ exports.uploadResume = async (req, res) => {
 };
 
 // BACKEND/controllers/careerController.js (Add the createResource handler)
-
-// ... (other exports like getCareerResources, uploadResume) ...
 
 // POST /api/career/resource-create - Admin creates a new Prep Resource or Article
 exports.createResource = async (req, res) => {

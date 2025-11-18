@@ -181,7 +181,7 @@ exports.getStudentDirectory = async (req, res) => {
   }
 };
 
-// --- Get Student Profile By ID ---
+//  Get Student Profile By ID
 exports.getStudentProfileById = async (req, res) => {
   try {
     const { id } = req.params;
@@ -220,3 +220,156 @@ exports.getStudentProfileById = async (req, res) => {
 // };
 
 //yaha tk
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+exports.updateStudentProfile = async (req, res) => {
+  try {
+    // Ensure auth middleware set req.user
+    if (!req.user || !req.user.id) {
+      return res.status(401).json({ message: 'Authentication required' });
+    }
+
+    const requesterId = String(req.user.id);
+    const requesterRole = (req.user.role || '').toLowerCase();
+    const targetId = req.params.id;
+    if (!targetId) return res.status(400).json({ message: 'Missing target student id' });
+
+    // Only the student herself may update their profile
+    if (!(requesterRole === 'student' && requesterId === String(targetId))) {
+      return res.status(403).json({ message: 'Forbidden: you can only update your own student profile' });
+    }
+
+    // Work with a shallow copy of body
+    const data = { ...(req.body || {}) };
+
+    // Handle uploaded files (multer) -> set correct public path
+    if (req.files) {
+      if (req.files.photo && req.files.photo.length > 0) {
+        data.photo = '/uploads/' + req.files.photo[0].filename;
+      }
+      if (req.files.verificationFile && req.files.verificationFile.length > 0) {
+        data.verificationFile = '/uploads/' + req.files.verificationFile[0].filename;
+      }
+    }
+
+    // Normalize array fields: accept JSON strings or comma-separated lists
+    ['skills', 'interests', 'communication', 'projects'].forEach(field => {
+      if (data[field] !== undefined) {
+        if (typeof data[field] === 'string') {
+          try {
+            const parsed = JSON.parse(data[field]);
+            data[field] = Array.isArray(parsed) ? parsed : [parsed];
+          } catch {
+            // treat as comma separated
+            data[field] = data[field].split(',').map(s => s.trim()).filter(Boolean);
+            // for projects, convert to array of objects if simple titles supplied
+            if (field === 'projects' && data[field].every(x => typeof x === 'string')) {
+              data[field] = data[field].map(title => ({ title }));
+            }
+          }
+        } else if (!Array.isArray(data[field])) {
+          data[field] = [data[field]];
+        }
+      }
+    });
+
+    // If password update requested -> hash it
+    if (data.password) {
+      data.password = await bcrypt.hash(String(data.password), 10);
+    }
+
+    // Prevent students from changing admin-only fields explicitly
+    const forbidden = ['is_verified', 'engagement_status', 'prospect_type'];
+    for (const f of forbidden) {
+      if (f in data) {
+        return res.status(403).json({ message: `Only admin can change ${f}` });
+      }
+    }
+
+    // Whitelist allowed fields (what front-end can send)
+    const ALLOWED_FIELDS = [
+      'full_name',
+      'enrollment_number',
+      'contact_number',
+      'address',
+      'skills',
+      'interests',
+      'career_goals',
+      'discovery_insights',
+      'preferences',
+      'photo',
+      'verificationFile',
+      'linkedin',
+      'github',
+      'extracurricular',
+      'notifications',
+      'mentorship_area',
+      'mentor_type',
+      'communication',
+      'hear_about',
+      'projects',
+      'current_position',
+      'company',
+      'profile_photo_url',
+      'password',
+      'branch',
+      'year_of_admission',
+      'year_of_graduation'
+    ];
+
+    const updatePayload = {};
+    Object.keys(data).forEach(k => {
+      if (ALLOWED_FIELDS.includes(k)) updatePayload[k] = data[k];
+    });
+
+    // cast numeric fields if present
+    if (updatePayload.year_of_admission !== undefined) {
+      const n = Number(updatePayload.year_of_admission);
+      if (!Number.isNaN(n)) updatePayload.year_of_admission = n;
+      else delete updatePayload.year_of_admission;
+    }
+    if (updatePayload.year_of_graduation !== undefined) {
+      const n = Number(updatePayload.year_of_graduation);
+      if (!Number.isNaN(n)) updatePayload.year_of_graduation = n;
+      else delete updatePayload.year_of_graduation;
+    }
+
+    // Run update
+    const updatedStudent = await StudentProfile.findByIdAndUpdate(
+      targetId,
+      { $set: updatePayload },
+      { new: true, runValidators: true }
+    ).select('-password');
+
+    if (!updatedStudent) {
+      return res.status(404).json({ message: 'Student not found' });
+    }
+
+    return res.json({
+      message: 'Profile updated successfully',
+      student: updatedStudent
+    });
+  } catch (error) {
+    console.error('Error updating student:', error);
+    return res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};

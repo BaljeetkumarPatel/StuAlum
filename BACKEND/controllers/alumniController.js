@@ -186,9 +186,9 @@ exports.getAlumniProfileById = async (req, res) => {
   }
 };
 
-// ------------------------------------------------------------------
+
 // --- Invite Alumni ---
-// ------------------------------------------------------------------
+
 
 exports.inviteAlumni = async (req, res) => {
   const { emails } = req.body;
@@ -209,7 +209,7 @@ exports.inviteAlumni = async (req, res) => {
       apiKey: process.env.MAILERSEND_API_KEY,
     });
 
-    // 🛑 NOTE: Filter out existing users before sending (optional but good practice)
+    // NOTE: Filter out existing users before sending (optional but good practice)
     const existingAlumni = await AlumniProfile.find({ email: { $in: emails } }).select('email');
     const existingEmails = new Set(existingAlumni.map(a => a.email));
     const newEmails = emails.filter(email => !existingEmails.has(email));
@@ -310,5 +310,140 @@ exports.exportAlumniToCSV = async (req, res) => {
   } catch (error) {
     console.error('Error exporting alumni data:', error);
     res.status(500).json({ message: 'Server error during export.' });
+  }
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//  UPDATE ALUMNI PROFILE
+// Only the alumni owner can update their profile
+exports.updateAlumniProfile = async (req, res) => {
+  try {
+    // ensure auth middleware populated req.user
+    if (!req.user || !req.user.id) {
+      return res.status(401).json({ message: 'Authentication required' });
+    }
+
+    const requesterId = String(req.user.id);
+    const requesterRole = (req.user.role || '').toLowerCase();
+    const targetId = req.params.id;
+    if (!targetId) return res.status(400).json({ message: 'Missing target alumni id' });
+
+    // enforce owner-only (no admin override)
+    if (!(requesterRole === 'alumni' && requesterId === String(targetId))) {
+      return res.status(403).json({ message: 'Forbidden: you can only update your own alumni profile' });
+    }
+
+    const data = { ...(req.body || {}) };
+
+    // handle uploaded files (multer-style req.files)
+    if (req.files) {
+      if (req.files.profile_photo_url && req.files.profile_photo_url.length > 0) {
+        data.profile_photo_url = '/uploads/' + req.files.profile_photo_url[0].filename;
+      }
+      if (req.files.verificationFile && req.files.verificationFile.length > 0) {
+        data.verificationFile = '/uploads/' + req.files.verificationFile[0].filename;
+      }
+    }
+
+    // Normalize array fields (accept JSON string or comma-separated)
+    ['skills', 'contribution_preferences', 'preferred_communication'].forEach(field => {
+      if (data[field] !== undefined) {
+        if (typeof data[field] === 'string') {
+          try {
+            const parsed = JSON.parse(data[field]);
+            data[field] = Array.isArray(parsed) ? parsed : [parsed];
+          } catch {
+            data[field] = data[field].split(',').map(s => s.trim()).filter(Boolean);
+          }
+        } else if (!Array.isArray(data[field])) {
+          data[field] = [data[field]];
+        }
+      }
+    });
+
+    // Numeric normalization
+    if (data.years_of_experience !== undefined) {
+      const n = Number(data.years_of_experience);
+      if (!Number.isNaN(n)) data.years_of_experience = n;
+      else delete data.years_of_experience;
+    }
+    if (data.graduation_year !== undefined) {
+      const n = Number(data.graduation_year);
+      if (!Number.isNaN(n)) data.graduation_year = n;
+      else delete data.graduation_year;
+    }
+
+    // If password included, hash it (owner-only)
+    if (data.password) {
+      data.password = await bcrypt.hash(String(data.password), 10);
+    }
+
+    // Prevent alumni from changing admin-only fields
+    if ('is_verified' in data) {
+      return res.status(403).json({ message: 'Only admin can change verification status' });
+    }
+    if ('engagement_status' in data || 'prospect_type' in data) {
+      // silently drop or return error; here return error for transparency
+      return res.status(403).json({ message: 'Not allowed to change this field' });
+    }
+
+    // Allowed fields the alumni owner may update
+    const ALLOWED_FIELDS = [
+      'college_id',
+      'full_name',
+      'contact_number',
+      'linkedin_url',
+      'github_url',
+      'leetcode_url',
+      'current_position',
+      'company',
+      'industry',
+      'location',
+      'years_of_experience',
+      'skills',
+      'profile_photo_url',
+      'about_me',
+      'professional_achievements',
+      'contribution_preferences',
+      'preferred_communication',
+      'verificationFile',
+      'portfolio',
+      'twitter',
+      'password',
+      'degree',
+      'graduation_year'
+    ];
+
+    const updatePayload = {};
+    Object.keys(data).forEach(key => {
+      if (ALLOWED_FIELDS.includes(key)) {
+        updatePayload[key] = data[key];
+      }
+    });
+
+    const updated = await AlumniProfile.findByIdAndUpdate(
+      targetId,
+      { $set: updatePayload },
+      { new: true, runValidators: true }
+    ).select('-password');
+
+    if (!updated) return res.status(404).json({ message: 'Alumni not found' });
+
+    return res.json({ message: 'Alumni profile updated successfully', alumni: updated });
+  } catch (error) {
+    console.error('Error updating alumni:', error);
+    return res.status(500).json({ message: 'Server error', error: error.message });
   }
 };

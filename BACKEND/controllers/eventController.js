@@ -1,6 +1,6 @@
 const Event = require('../models/Event');
 const mongoose = require('mongoose');
-const { addPoints } = require("../utils/pointsService");
+const { awardUniquePoints } = require("../utils/pointsHelper");
 
 // Helper function to determine the Mongoose model name based on role
 const getProfileType = (role) => {
@@ -112,13 +112,19 @@ exports.createEvent = async (req, res) => {
             created_by,
             creator_model_type
         });
+        const saved = await newEvent.save();
 
-       if (role !== "admin") {
-            const pointsToAdd = 50; // you can adjust based on event importance
-            await addPoints(created_by, role, pointsToAdd);
-            console.log(`🏆 ${role} ${created_by} earned ${pointsToAdd} points for creating an event.`);
+        // award points ONLY to alumni for creating event
+        if (role?.toLowerCase() === "alumni") {
+            const pointsUserType = "AlumniProfile";
+            const actionKey = `event_created_${saved._id}`;
+
+            await awardUniquePoints(created_by, pointsUserType, 50, actionKey);
+
+            console.log(` Alumni ${created_by} earned 50 points for creating event.`);
         }
-        await newEvent.save();
+
+    res.status(201).json({ message: 'Event created successfully.', event: saved });
         res.status(201).json({ message: 'Event created successfully.', event: newEvent });
 
     } catch (error) {
@@ -137,6 +143,11 @@ exports.registerForEvent = async (req, res) => {
         const { id: userId, role } = req.user;
 
         const registered_user_model_type = getProfileType(role);
+
+        const r = (role || "").toLowerCase();
+        const pointsUserType =
+            r === "student" ? "StudentProfile" :
+            r === "alumni"  ? "AlumniProfile" : null;
 
         const event = await Event.findById(eventId).select('status capacity registered_users');
 
@@ -169,16 +180,18 @@ exports.registerForEvent = async (req, res) => {
             }
         ).exec();
 
-         if (role !== "admin") {
-            // Optional: category-based reward
-            const basePoints = 10;
-            const categoryBonus = event.category?.toLowerCase() === "hackathon" ? 10 : 0;
-            const totalPoints = basePoints + categoryBonus;
+        // Award points on registration for Student or Alumni as appropriate
+        if (pointsUserType) {
+                const basePoints = 10;
+                const categoryBonus = event.category?.toLowerCase() === "hackathon" ? 10 : 0;
+                const totalPoints = basePoints + categoryBonus;
+                const actionKey = `event_register_${eventId}`;
 
-            await addPoints(userId, role, totalPoints);
+                await awardUniquePoints(userId, pointsUserType, totalPoints, actionKey);
 
-            console.log(`🎉 ${role} (${userId}) earned ${totalPoints} points for registering for "${event.title}".`);
+                console.log(`🎉 ${role} (${userId}) awarded ${totalPoints} points for registering for ${eventId}`);
         }
+        
 
         res.json({ message: 'Successfully registered for the event.', eventId });
 
@@ -194,7 +207,7 @@ exports.deleteEvent = async (req, res) => {
         const { eventId } = req.params;
         const { id: userId, role } = req.user;
 
-        if (role !== 'admin') {
+        if (role !== 'admin' && role !== 'alumni') {
             return res.status(403).json({ message: 'Only Admins can delete events.' });
         }
 
@@ -219,7 +232,7 @@ const {getGeminiEventPlan}=require("../utils/gemini");
 
 exports.generateEventPlan = async (req, res) => {
   try {
-    console.log("📩 Incoming request body:", req.body);
+    console.log(" Incoming request body:", req.body);
 
     const {
       title, category, startTime, endTime, capacity,
@@ -227,7 +240,7 @@ exports.generateEventPlan = async (req, res) => {
     } = req.body;
 
     if (!title || !location || !startTime || !endTime || !mode) {
-      console.warn("⚠️ Missing title or location");
+      console.warn(" Missing title or location");
       return res.status(400).json({ error: "Event name and location are required." });
     }
 
@@ -263,7 +276,7 @@ Include:
 Make it look creative, elegant, and easy to read.
 `;
 
-    console.log("🧠 Sending prompt to Gemini...");
+    console.log("Sending prompt to Gemini...");
 
     const plan = await getGeminiEventPlan(prompt);
     console.log("✅ Gemini responded successfully!");
@@ -271,7 +284,7 @@ Make it look creative, elegant, and easy to read.
     // return res.status(200).json({ success: true, plan });
     res.json({ success: true, plan });
   } catch (err) {
-    console.error("❌ ERROR in generateEventPlan:", err);
+    console.error("ERROR in generateEventPlan:", err);
      return res.status(500).json({ error: "Failed to generate event plan." });
   }
 };
@@ -344,11 +357,11 @@ exports.publishEvent = async (req, res) => {
 
     res.status(201).json({
       success: true,
-      message: "✅ Event published successfully!",
+      message: " Event published successfully!",
       event,
     });
   } catch (error) {
-    console.error("❌ Error publishing event:", error);
+    console.error(" Error publishing event:", error);
     res.status(500).json({ error: "Failed to publish event" });
   }
 };

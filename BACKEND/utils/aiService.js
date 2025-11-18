@@ -7,7 +7,7 @@ async function createEmbedding(text) {
     const result = await model.embedContent(text);
     return result.embedding.values;
   } catch (err) {
-    console.error("❌ Embedding Error:", err.message);
+    console.error(" Embedding Error:", err.message);
     return Array.from({ length: 1536 }, () => Math.random());
   }
 }
@@ -20,7 +20,7 @@ async function generateReasoning(prompt) {
     });
     return result.response.text();
   } catch (err) {
-    console.error("❌ Reasoning Error:", err.message);
+    console.error("Reasoning Error:", err.message);
     return "Reasoning unavailable.";
   }
 }

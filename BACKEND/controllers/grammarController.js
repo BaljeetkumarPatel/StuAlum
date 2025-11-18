@@ -4,7 +4,7 @@ const { generateMockGrammar } = require('../utils/mockResponses');
 const hasGeminiKey = !!process.env.GEMINI_API_KEY;
 
 exports.checkGrammar = async (req, res, next) => {
-    console.log("✅ Grammar API hit with text:", req.body.text);
+    console.log(" Grammar API hit with text:", req.body.text);
     try {
         const { text } = req.body;
         if (!text || text.trim() === '') {

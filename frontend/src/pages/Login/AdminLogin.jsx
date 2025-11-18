@@ -89,9 +89,11 @@ const AdminLogin = () => {
     setError("");
 
     try {
-      const res = await axios.post("http://localhost:5000/api/admin/login", formData);
-      localStorage.setItem("userToken", res.data.token);
-      localStorage.setItem("userRole", "admin");
+  const res = await axios.post("http://localhost:5000/api/admin/login", formData);
+  // Keep compatibility: write both 'userToken' and legacy 'token'
+  localStorage.setItem("userToken", res.data.token);
+  localStorage.setItem("token", res.data.token);
+  localStorage.setItem("userRole", "admin");
       alert("✅ Admin logged in successfully!");
       navigate("/");
     } catch (err) {

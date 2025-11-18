@@ -6,10 +6,10 @@ const AlumniProfile = require("../models/AlumniProfile");
 const StudentProfile = require("../models/StudentProfile");
 const { createEmbedding } = require("../utils/aiService");
 
-// ✅ Load .env safely (works even when running from /scripts)
+// Load .env safely (works even when running from /scripts)
 dotenv.config({ path: path.resolve(__dirname, "../.env") });
 
-// ✅ Connect to MongoDB
+// Connect to MongoDB
 (async () => {
   try {
     await connectDB();
@@ -25,9 +25,9 @@ dotenv.config({ path: path.resolve(__dirname, "../.env") });
     });
 
     if (alumniWithoutEmbeddings.length === 0) {
-      console.log("✅ All alumni already have embeddings.\n");
+      console.log(" All alumni already have embeddings.\n");
     } else {
-      console.log(`🧠 Found ${alumniWithoutEmbeddings.length} alumni missing embeddings.`);
+      console.log(` Found ${alumniWithoutEmbeddings.length} alumni missing embeddings.`);
       for (const alum of alumniWithoutEmbeddings) {
         try {
           const text = `
@@ -40,12 +40,12 @@ dotenv.config({ path: path.resolve(__dirname, "../.env") });
 
           alum.embedding = await createEmbedding(text);
           await alum.save();
-          console.log(`✅ Embedded Alumni: ${alum.full_name}`);
+          console.log(` Embedded Alumni: ${alum.full_name}`);
         } catch (err) {
-          console.error(`❌ Failed to embed alumni ${alum.full_name}:`, err.message);
+          console.error(` Failed to embed alumni ${alum.full_name}:`, err.message);
         }
       }
-      console.log("\n🎓 Alumni embeddings update complete.\n");
+      console.log("\n Alumni embeddings update complete.\n");
     }
 
     const studentsWithoutEmbeddings = await StudentProfile.find({
@@ -57,9 +57,9 @@ dotenv.config({ path: path.resolve(__dirname, "../.env") });
     });
 
     if (studentsWithoutEmbeddings.length === 0) {
-      console.log("✅ All students already have embeddings.\n");
+      console.log(" All students already have embeddings.\n");
     } else {
-      console.log(`🧠 Found ${studentsWithoutEmbeddings.length} students missing embeddings.`);
+      console.log(` Found ${studentsWithoutEmbeddings.length} students missing embeddings.`);
       for (const stu of studentsWithoutEmbeddings) {
         try {
           const text = `
@@ -81,7 +81,7 @@ dotenv.config({ path: path.resolve(__dirname, "../.env") });
 
     process.exit(0);
   } catch (err) {
-    console.error("❌ Migration failed:", err);
+    console.error(" Migration failed:", err);
     process.exit(1);
   }
 })();

@@ -25,7 +25,7 @@ const EventSchema = new mongoose.Schema({
     creator_model_type: {
         type: String,
         required: true,
-        enum: ['AdminProfile'] // Assuming only Admins can create official events
+        enum: ['AdminProfile', 'AlumniProfile', 'StudentProfile'] // Assuming only Admins can create official events
     },
 
     // ----------------------------------------------------

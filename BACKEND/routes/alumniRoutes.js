@@ -5,6 +5,7 @@ const router = express.Router();
 const upload = require('../middleware/uploadMiddleware');
 const auth = require('../middleware/auth');
 const { checkRole } = require('../middleware/checkRole');
+const checkOwnership = require('../middleware/checkOwnership');
 const {
     registerAlumni,
     loginAlumni,
@@ -12,7 +13,8 @@ const {
     getAlumniProfileById,
     // 🛑 ADDED: Import the function to handle CSV export
     exportAlumniToCSV,
-    inviteAlumni
+    inviteAlumni,
+    updateAlumniProfile
 } = require('../controllers/alumniController');
 
 // --- Authentication Routes ---
@@ -38,5 +40,19 @@ router.get('/:id', getAlumniProfileById);
 
 // 🛑 NEW ROUTE: Invite Alumni (Admin only)
 router.post('/invite', auth, checkRole(['admin']), inviteAlumni);
+
+
+// UPDATE ALUMNI PROFILE
+router.patch(
+  '/edit/:id',
+  auth,
+  checkRole(['alumni']),
+  checkOwnership,
+  upload.fields([
+    { name: 'profile_photo_url', maxCount: 1 },
+    { name: 'verificationFile', maxCount: 1 }
+  ]),
+  updateAlumniProfile
+);
 
 module.exports = router;

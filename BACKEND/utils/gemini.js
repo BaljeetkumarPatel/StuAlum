@@ -22,12 +22,12 @@ const { GoogleGenerativeAI } = require("@google/generative-ai");
 
 dotenv.config();
 
-// ✅ Load API Key safely
+//  Load API Key safely
 const apiKey = process.env.GEMINI_API_KEY;
 
-// ✅ Optional fallback (for local testing)
+//  Optional fallback (for local testing)
 if (!apiKey) {
-  console.warn("⚠️ GEMINI_API_KEY missing in .env — using dummy response mode.");
+  console.warn(" GEMINI_API_KEY missing in .env — using dummy response mode.");
 }
 
 // Initialize Gemini only if API key exists
@@ -42,7 +42,7 @@ const defaultConfig = {
 
 const generateWithGemini = async (prompt) => {
   if (!genAI) {
-    console.log("⚙️ Returning dummy output (Gemini API not configured).");
+    console.log(" Returning dummy output (Gemini API not configured).");
     return `Dummy Gemini output for prompt: "${prompt}"`;
   }
 
@@ -57,11 +57,11 @@ const generateWithGemini = async (prompt) => {
     const text =
       (result.response && result.response.text && result.response.text()) ||
       (result.response?.candidates?.[0]?.content?.parts?.[0]?.text) ||
-      "⚠️ No valid text found in Gemini response.";
+      " No valid text found in Gemini response.";
 
     return text;
   } catch (error) {
-    console.error("❌ Gemini API Error:", error);
+    console.error(" Gemini API Error:", error);
     throw new Error("Failed to generate content from Gemini API");
   }
 };
@@ -71,7 +71,7 @@ const generateWithGemini = async (prompt) => {
 // ======================
 
 const getGeminiEventPlan = async (prompt) => {
-  console.log("📅 Generating event plan with Gemini...");
+  console.log(" Generating event plan with Gemini...");
   return await generateWithGemini(prompt);
 };
 
@@ -87,7 +87,7 @@ module.exports = {
 // dotenv.config();
 // const apiKey = process.env.GEMINI_API_KEY;
 // if (!apiKey) {
-//   throw new Error("❌ Missing GEMINI_API_KEY in .env");
+//   throw new Error(" Missing GEMINI_API_KEY in .env");
 // }
 
 // const genAI = new GoogleGenerativeAI(apiKey);
@@ -95,21 +95,21 @@ module.exports = {
 // export const getGeminiEventPlan = async (prompt) => {
 //   try {
 //     const model = genAI.getGenerativeModel({
-//       model: "gemini-2.0-flash", // ✅ safer model name (works with current SDK)
+//       model: "gemini-2.0-flash", // safer model name (works with current SDK)
 //       generationConfig: { temperature: 0.7, maxOutputTokens: 2048 },
 //     });
 
 //     const result = await model.generateContent(prompt);
-//     console.log("🔍 Gemini API raw response:", JSON.stringify(result, null, 2));
+//     console.log(" Gemini API raw response:", JSON.stringify(result, null, 2));
 
 //     const text =
 //       result.response?.text?.() ||
 //       result.response?.candidates?.[0]?.content?.parts?.[0]?.text ||
-//       "⚠️ No valid text found in Gemini response.";
+//       " No valid text found in Gemini response.";
 
 //     return text;
 //   } catch (error) {
-//     console.error("❌ Gemini API error:", error);
+//     console.error(" Gemini API error:", error);
 //     throw new Error("Failed to generate content from Gemini API");
 //   }
 // };

@@ -89,11 +89,14 @@ const AlumniLogin = () => {
     setError("");
 
     try {
-      const res = await axios.post("http://localhost:5000/api/alumni/login", formData);
-      localStorage.setItem("userToken", res.data.token);
-      localStorage.setItem("userRole", "alumni");
-      alert("✅ Logged in successfully!");
-      navigate("/");
+  const res = await axios.post("http://localhost:5000/api/alumni/login", formData);
+  // Save token in both keys for backward compatibility
+        localStorage.setItem("userToken", res.data.token);
+        localStorage.setItem("token", res.data.token);
+        localStorage.setItem("userRole", "alumni");
+      
+        alert("Logged in successfully!");
+        navigate("/");
     } catch (err) {
       setError(err.response?.data?.message || "Login failed. Please check your credentials.");
     } finally {

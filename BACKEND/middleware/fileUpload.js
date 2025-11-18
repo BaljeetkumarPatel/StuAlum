@@ -39,7 +39,7 @@ const upload = multer({
             cb(new Error('Only PDF files (max 5MB) are allowed for resume upload.'), false);
         }
     }
-// 🚨 IMPORTANT: The .single('resume') call creates the middleware function
+
 // 'resume' must match the key used in the frontend's FormData.
 }).single('resume'); 
 
