@@ -11,14 +11,14 @@ export default function DashboardStatsCards() {
     const fetchStats = async () => {
       try {
         const token = localStorage.getItem("token");
-        const res = await axios.get("http://localhost:5000/api/placement/stats", {
+        const res = await axios.get("https://stualum.onrender.com/api/placement/stats", {
           headers: { Authorization: `Bearer ${token}` },
         });
 
         setStats(res.data?.stats || []);
         setRole(res.data?.role || "guest");
       } catch (err) {
-        console.error("❌ Error fetching dashboard stats:", err);
+        console.error(" Error fetching dashboard stats:", err);
         setError("Failed to load stats. Try again later.");
       } finally {
         setLoading(false);

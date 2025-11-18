@@ -30,7 +30,7 @@ export default function PointsPage({ onSidebarToggle }) {
         localStorage.setItem("role", role); // student | alumni
 
         const response = await fetch(
-          `http://localhost:5000/api/auth/me?userId=${userId}&role=${role}`
+          `https://stualum.onrender.com/api/auth/me?userId=${userId}&role=${role}`
         );
 
         const data = await response.json();

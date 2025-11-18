@@ -45,7 +45,7 @@ export default function EditPlacement() {
     const token = localStorage.getItem("token");
 
     axios
-      .get(`http://localhost:5000/api/placement/single/${id}`, {
+      .get(`https://stualum.onrender.com/api/placement/single/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((res) => {
@@ -138,7 +138,7 @@ export default function EditPlacement() {
       console.log("📦 FINAL UPDATE PAYLOAD:", payload);
 
       await axios.put(
-        `http://localhost:5000/api/placement/update/${id}`,
+        `https://stualum.onrender.com/api/placement/update/${id}`,
         payload,
         { headers: { Authorization: `Bearer ${token}` } }
       );

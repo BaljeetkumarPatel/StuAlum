@@ -10,7 +10,7 @@ import api from '../services/api';
 import { getCurrentUserRole } from '../utils/authUtils';
 
 // Define the base URL for the backend API
-const API_BASE_URL = 'http://localhost:5000';
+const API_BASE_URL = 'https://stualum.onrender.com';
 
 const AlumniDirectory = ({ onSidebarToggle }) => {
     const [alumniData, setAlumniData] = useState([]);

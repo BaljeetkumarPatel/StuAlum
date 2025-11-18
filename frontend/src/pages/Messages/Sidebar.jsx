@@ -67,7 +67,7 @@
 // src/pages/Messages/Sidebar.jsx
 import React, { useState } from "react";
 
-const API_BASE = "http://localhost:5000";
+const API_BASE = "https://stualum.onrender.com";
 const DEFAULT_AVATAR =
   "https://cdn-icons-png.flaticon.com/512/149/149071.png"; // same UI as screenshot
 

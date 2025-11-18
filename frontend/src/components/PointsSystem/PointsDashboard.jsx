@@ -235,7 +235,7 @@ import {
   getCurrentUserRoleFromToken,
 } from "../../utils/authUtils";
 
-const BASE_URL = "http://localhost:5000/api/points";
+const BASE_URL = "https://stualum.onrender.com/api/points";
 
 export default function PointsDashboard() {
   const [points, setPoints] = useState(0);

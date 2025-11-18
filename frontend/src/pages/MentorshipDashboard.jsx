@@ -33,7 +33,7 @@ const getCurrentUser = () => {
     };
 };
 
-const API_BASE_URL = (typeof process !== 'undefined' && process.env.REACT_APP_API_BASE_URL) || 'http://localhost:5000';
+const API_BASE_URL = (typeof process !== 'undefined' && process.env.REACT_APP_API_BASE_URL) || 'https://stualum.onrender.com';
 
 const MentorshipDashboard = ({ onSidebarToggle }) => {
     const navigate = useNavigate();

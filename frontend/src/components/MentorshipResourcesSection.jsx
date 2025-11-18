@@ -129,7 +129,7 @@ const MentorshipResourcesSection = ({ user }) => {
                                     ) : (
                                         <>
                                             <button
-                                                onClick={() => window.open(`http://localhost:5000/${resource.url}`, '_blank')}
+                                                onClick={() => window.open(`https://stualum.onrender.com/${resource.url}`, '_blank')}
                                                 className="bg-gradient-to-r from-purple-600 to-purple-700 text-white px-3 py-1 rounded text-sm hover:from-purple-700 hover:to-purple-800 hover:scale-105 transition-all duration-200"
                                             >
                                                 View Resource
@@ -137,7 +137,7 @@ const MentorshipResourcesSection = ({ user }) => {
                                             <button
                                                 onClick={() => {
                                                     const link = document.createElement('a');
-                                                    link.href = `http://localhost:5000/${resource.url}`;
+                                                    link.href = `https://stualum.onrender.com/${resource.url}`;
                                                     link.download = resource.title;
                                                     link.click();
                                                 }}

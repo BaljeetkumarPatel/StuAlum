@@ -155,7 +155,7 @@ const AlumniRegistration = () => {
     }
 
     try {
-      const res = await fetch("http://localhost:5000/api/alumni/register", {
+      const res = await fetch("https://stualum.onrender.com/api/alumni/register", {
         method: "POST",
         body: formPayload,
       });

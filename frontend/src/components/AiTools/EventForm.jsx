@@ -17,7 +17,9 @@ export default function EventForm({ setOutput }) {
   const [loading, setLoading] = useState(false);
 
   // ✅ Backend API URL moved here
-  const BACKEND_URL = "http://localhost:5000/api/events/generate";
+  const BACKEND_URL ="https://stualum.onrender.com/api/events/generate";
+  
+   //"http://localhost:5000/api/events/generate";
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });

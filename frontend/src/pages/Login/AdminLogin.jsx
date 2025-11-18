@@ -89,7 +89,7 @@ const AdminLogin = () => {
     setError("");
 
     try {
-  const res = await axios.post("http://localhost:5000/api/admin/login", formData);
+  const res = await axios.post("https://stualum.onrender.com/api/admin/login", formData);
   // Keep compatibility: write both 'userToken' and legacy 'token'
   localStorage.setItem("userToken", res.data.token);
   localStorage.setItem("token", res.data.token);

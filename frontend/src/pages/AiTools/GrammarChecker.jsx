@@ -12,7 +12,7 @@ const GrammarChecker = ({onSidebarToggle}) => {
     if (!text.trim()) return alert("Please enter some text to check.");
     setLoading(true);
     try {
-      const res = await fetch("http://localhost:5000/api/grammar/check", {
+      const res = await fetch("https://stualum.onrender.com/api/grammar/check", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ text }),

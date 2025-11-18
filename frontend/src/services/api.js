@@ -3,7 +3,7 @@
 import axios from 'axios';
 
 // 1. Define the base URL for your backend server
-const API_URL = 'http://localhost:5000/api'; // Assuming your backend runs on port 5000 and uses /api prefix
+const API_URL = 'https://stualum.onrender.com/api'; // Assuming your backend runs on port 5000 and uses /api prefix
 
 const api = axios.create({
     baseURL: API_URL,

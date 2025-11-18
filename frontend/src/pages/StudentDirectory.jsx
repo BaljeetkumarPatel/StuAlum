@@ -8,7 +8,7 @@ import StudentCard from '../components/StudentDirectory/StudentCard';
 import { getStudentDirectory } from '../services/api';
 
 // Define the base URL for the backend API
-const API_BASE_URL = 'http://localhost:5000';
+const API_BASE_URL = 'https://stualum.onrender.com';
 
 const StudentDirectory = ({ onSidebarToggle }) => {
     const [studentData, setStudentData] = useState([]);

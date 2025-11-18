@@ -4,7 +4,7 @@ import { useEffect, useRef } from "react";
 import { io } from "socket.io-client";
 
 // DIRECT URL
-const SOCKET_URL = "http://localhost:5000";
+const SOCKET_URL = "https://stualum.onrender.com";
 
 export default function useChatSocket(token, handlers = {}) {
   const socketRef = useRef(null);

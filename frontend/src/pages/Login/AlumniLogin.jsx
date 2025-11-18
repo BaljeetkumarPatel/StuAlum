@@ -89,7 +89,7 @@ const AlumniLogin = () => {
     setError("");
 
     try {
-  const res = await axios.post("http://localhost:5000/api/alumni/login", formData);
+  const res = await axios.post("https://stualum.onrender.com/api/alumni/login", formData);
   // Save token in both keys for backward compatibility
         localStorage.setItem("userToken", res.data.token);
         localStorage.setItem("token", res.data.token);

@@ -20,7 +20,7 @@ const TextGenerator = ({onSidebarToggle}) => {
     setDisplayText("");
 
     try {
-      const res = await fetch("http://localhost:5000/api/text/generate", {
+      const res = await fetch("https://stualum.onrender.com/api/text/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ topic, tone, length }),

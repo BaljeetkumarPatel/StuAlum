@@ -11,10 +11,12 @@ export default defineConfig({
     port: 5174,
     proxy: {
       '/api': {
-        target: 'http://localhost:5000',
+        target:'https://stualum.onrender.com' ,
         changeOrigin: true,
         secure: false,
       },
     },
   },
 })
+
+//http://localhost:5000

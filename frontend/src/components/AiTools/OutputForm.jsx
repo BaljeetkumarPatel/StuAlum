@@ -43,7 +43,8 @@ export default function OutputDisplay({ output, eventData }) {
 
   const publishOnApp = () => {
     // 🔹 Dummy backend endpoint
-    fetch("http://localhost:5000/api/events/publish", {
+    //http://localhost:5000/api/events/publish
+    fetch("https://stualum.onrender.com/api/events/publish", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ title, location, output }),

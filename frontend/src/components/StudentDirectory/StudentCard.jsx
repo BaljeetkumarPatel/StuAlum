@@ -12,7 +12,7 @@ const getToken = () => localStorage.getItem('token');
 
 
 // 🛑 CRITICAL FIX 1: Define the API base URL for image loading.
-const API_BASE_URL = 'http://localhost:5000'; 
+const API_BASE_URL = 'https://stualum.onrender.com'; 
 const DEFAULT_PROFILE_IMAGE = '/path/to/default/image.png'; // Fallback image path
 
 

@@ -281,7 +281,7 @@ const Sidebar = ({ onLogoClick, isOpen, onClose }) => {
             if (!getCurrentUserIdFromToken()) return;
 
             try {
-                const response = await axios.get('http://localhost:5000/api/messages/conversations', {
+                const response = await axios.get('https://stualum.onrender.com/api/messages/conversations', {
                     headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
                 });
                 const totalUnread = response.data.reduce((sum, conv) => sum + (conv.unreadCount || 0), 0);

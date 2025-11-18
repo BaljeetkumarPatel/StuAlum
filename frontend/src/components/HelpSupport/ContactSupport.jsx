@@ -163,7 +163,7 @@ export default function ContactSupport() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await fetch("http://localhost:5000/api/contact", {
+      const res = await fetch("https://stualum.onrender.com/api/contact", {  //http://localhost:5000/api/contact
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
@@ -173,7 +173,7 @@ export default function ContactSupport() {
         alert("Message sent successfully!\nThank you for reaching out to us.\nShortly, our support team will get back to you.");
         setForm({ name: "", email: "", message: "" });
         setFormVisible(false);
-      } else alert("❌ Something went wrong. Try again.");
+      } else alert(" Something went wrong. Try again.");
     } catch (err) {
       console.error(err);
       alert("Server error. Please try later.");

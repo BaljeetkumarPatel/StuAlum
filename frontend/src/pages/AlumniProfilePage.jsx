@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
 
-const API_BASE_URL = 'http://localhost:5000'; 
+const API_BASE_URL = 'https://stualum.onrender.com'; 
 const DEFAULT_PROFILE_IMAGE = '/path/to/default/image.png';
 
 const AlumniProfilePage = () => {

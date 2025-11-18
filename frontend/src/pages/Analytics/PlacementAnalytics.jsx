@@ -39,7 +39,7 @@ export default function PlacementAnalytics() {
 
       const token = localStorage.getItem("token");
 
-      await axios.delete(`http://localhost:5000/api/placement/delete/${id}`, {
+      await axios.delete(`https://stualum.onrender.com/api/placement/delete/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -50,7 +50,7 @@ export default function PlacementAnalytics() {
   const saveChanges = async () => {
   const token = localStorage.getItem("token");
   await axios.put(
-      `http://localhost:5000/api/placement/update/${editData._id}`,
+      `https://stualum.onrender.com/api/placement/update/${editData._id}`,
       editData,
       { headers: { Authorization: `Bearer ${token}` } }
     );
@@ -69,7 +69,7 @@ export default function PlacementAnalytics() {
   useEffect(() => {
     const token = localStorage.getItem("token");
     axios
-      .get("http://localhost:5000/api/placement/analytics", {
+      .get("https://stualum.onrender.com/api/placement/analytics", {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((res) => {

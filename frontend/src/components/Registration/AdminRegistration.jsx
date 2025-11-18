@@ -113,7 +113,7 @@ const AdminRegistration = () => {
     };
 
     try {
-      const res = await fetch("http://localhost:5000/api/admin/register", {
+      const res = await fetch("https://stualum.onrender.com/api/admin/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

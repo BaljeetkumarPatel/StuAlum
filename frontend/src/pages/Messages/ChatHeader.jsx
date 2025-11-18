@@ -25,7 +25,7 @@
 
 import React from "react";
 
-const API_BASE = "http://localhost:5000";
+const API_BASE = "https://stualum.onrender.com";
 
 const ChatHeader = ({ user }) => {
   return (

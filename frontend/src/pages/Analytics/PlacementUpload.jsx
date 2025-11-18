@@ -72,7 +72,7 @@ export default function PlacementUpload() {
       const token = localStorage.getItem("token");
       const payload = { ...form, branches, companies, internships };
 
-      await axios.post("http://localhost:5000/api/placement/upload", payload, {
+      await axios.post("https://stualum.onrender.com/api/placement/upload", payload, {
         headers: { Authorization: `Bearer ${token}` },
       });
 

@@ -13,8 +13,8 @@ import useChatSocket from "./useChatSocket";
 
 import { getCurrentUserIdFromToken } from "../../utils/authUtils";
 
-const API_BASE = "http://localhost:5000";
-const SOCKET_URL = "http://localhost:5000";
+const API_BASE = "https://stualum.onrender.com";
+const SOCKET_URL = "https://stualum.onrender.com";
 
 const Messages = ({ onSidebarToggle }) => {
   const { conversationId } = useParams();
