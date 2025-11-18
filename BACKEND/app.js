@@ -120,7 +120,7 @@ const startServer = async () => {
         app.use('/api/mentorship', require('./routes/mentorshipRoutes'));
 
         //contact route
-        app.use("/api/contact",require("./routes/contactRoutes"));
+        app.use("/api/contact",require("./routes/ContactRoutes.js"));
 
         //ai recommendation route
         app.use("/api/recommendations",require("./routes/recommendationRoutes"));
