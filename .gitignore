@@ -1,3 +1,16 @@
 # Ignore environment files
 frontend/.env
-backend/.env
+frontend/node_modules/
+frontend/dist/
+frontend/.vercel/
+frontend/package-lock.json
+
+BACKEND/node_modules/
+BACKEND/.env
+BACKEND/.vercel/
+BACKEND/package-lock.json
+
+# General
+.env
+npm-debug.log*
+.DS_Store
