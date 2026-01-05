@@ -179,7 +179,7 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 ----------------------------------------------------------- */
 async function callGemini(modelName, prompt) {
   const primaryModel = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
-  const fallbackModel = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+  const fallbackModel = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
   try {
     const result = await primaryModel.generateContent({
@@ -188,7 +188,7 @@ async function callGemini(modelName, prompt) {
     return result.response.text();
   } catch (err) {
     console.warn(" Primary model failed:", err.message);
-    console.warn(" Switching to fallback model (gemini-2.0-flash)...");
+    console.warn(" Switching to fallback model (gemini-2.5-flash)...");
 
     try {
       const result = await fallbackModel.generateContent({
