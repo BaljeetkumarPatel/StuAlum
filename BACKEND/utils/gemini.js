@@ -34,7 +34,7 @@ if (!apiKey) {
 const genAI = apiKey ? new GoogleGenerativeAI(apiKey) : null;
 
 // Default model configuration
-const defaultModel = "gemini-2.0-flash";
+const defaultModel = "gemini-2.5-flash";
 const defaultConfig = {
   temperature: 0.7,
   maxOutputTokens: 2048,
